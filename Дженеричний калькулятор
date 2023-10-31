@@ -1,0 +1,15 @@
+public class Calculator<T>
+{
+    public delegate T ArithmeticOperation(T a, T b);
+
+    public ArithmeticOperation Add { get; } = (a, b) => (dynamic)a + (dynamic)b;
+    public ArithmeticOperation Subtract { get; } = (a, b) => (dynamic)a - (dynamic)b;
+    public ArithmeticOperation Multiply { get; } = (a, b) => (dynamic)a * (dynamic)b;
+    public ArithmeticOperation Divide { get; } = (a, b) => (dynamic)a / (dynamic)b;
+}
+
+// Приклад використання
+var intCalculator = new Calculator<int>();
+Console.WriteLine(intCalculator.Add(5, 3));       // 8
+var doubleCalculator = new Calculator<double>();
+Console.WriteLine(doubleCalculator.Multiply(2.5, 4.0));  // 10.0
