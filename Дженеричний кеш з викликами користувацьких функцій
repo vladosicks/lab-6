@@ -1,0 +1,36 @@
+public class FunctionCache<TKey, TResult>
+{
+    private Dictionary<TKey, TResult> cache = new Dictionary<TKey, TResult>();
+    private Func<TKey, TResult> func;
+
+    public FunctionCache(Func<TKey, TResult> func)
+    {
+        this.func = func;
+    }
+
+    public TResult GetOrAdd(TKey key)
+    {
+        if (cache.ContainsKey(key))
+        {
+            return cache[key];
+        }
+        else
+        {
+            TResult result = func(key);
+            cache[key] = result;
+            return result;
+        }
+    }
+}
+
+// Приклад використання
+Func<int, string> expensiveFunction = (input) =>
+{
+    Console.WriteLine("Executing expensive function");
+    return $"Result: {input}";
+};
+
+var cache = new FunctionCache<int, string>(expensiveFunction);
+
+Console.WriteLine(cache.GetOrAdd(5)); // Викликає expensiveFunction
+Console.WriteLine(cache.GetOrAdd(5)); // Не викликає expensiveFunction, повертає з кешу
