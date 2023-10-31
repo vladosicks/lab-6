@@ -1,0 +1,61 @@
+public class TaskScheduler<TTask, TPriority>
+{
+    private SortedDictionary<TPriority, Queue<TTask>> taskQueue = new SortedDictionary<TPriority, Queue<TTask>>();
+    private Func<TTask, TPriority> getTaskPriority;
+
+    public TaskScheduler(Func<TTask, TPriority> getTaskPriority)
+    {
+        this.getTaskPriority = getTaskPriority;
+    }
+
+    public void AddTask(TTask task)
+    {
+        TPriority priority = getTaskPriority(task);
+        if (!taskQueue.ContainsKey(priority))
+        {
+            taskQueue[priority] = new Queue<TTask>();
+        }
+        taskQueue[priority].Enqueue(task);
+    }
+
+    public TTask ExecuteNext(TaskExecution<TTask> executionDelegate)
+    {
+        if (taskQueue.Count == 0)
+        {
+            return default(TTask);
+        }
+
+        TTask task = taskQueue.First().Value.Dequeue();
+        if (!taskQueue.First().Value.Any())
+        {
+            taskQueue.Remove(taskQueue.First().Key);
+        }
+
+        executionDelegate(task);
+        return task;
+    }
+
+    public void ReturnToPool(TTask task)
+    {
+        TPriority priority = getTaskPriority(task);
+        if (!taskQueue.ContainsKey(priority))
+        {
+            taskQueue[priority] = new Queue<TTask>();
+        }
+        taskQueue[priority].Enqueue(task);
+    }
+}
+
+// Приклад використання
+var scheduler = new TaskScheduler<string, int>(task => task.Length);
+
+scheduler.AddTask("Task 1");
+scheduler.AddTask("Task 2");
+scheduler.AddTask("Task 3");
+
+string task = scheduler.ExecuteNext(task => Console.WriteLine($"Executing task: {task}"));
+// Виконує Task 1, виводить "Executing task: Task 1"
+scheduler.ReturnToPool(task);
+
+task = scheduler.ExecuteNext(task => Console.WriteLine($"Executing task: {task}"));
+// Виконує Task 1 (знову), виводить "Executing task: Task 1"
