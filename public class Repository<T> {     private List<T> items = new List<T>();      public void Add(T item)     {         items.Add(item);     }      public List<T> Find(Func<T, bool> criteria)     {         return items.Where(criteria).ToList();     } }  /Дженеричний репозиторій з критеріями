@@ -1,0 +1,26 @@
+public class Repository<T>
+{
+    private List<T> items = new List<T>();
+
+    public void Add(T item)
+    {
+        items.Add(item);
+    }
+
+    public List<T> Find(Func<T, bool> criteria)
+    {
+        return items.Where(criteria).ToList();
+    }
+}
+
+// Приклад використання
+var repository = new Repository<int>();
+repository.Add(5);
+repository.Add(10);
+repository.Add(15);
+
+var result = repository.Find(item => item > 7);
+foreach (var item in result)
+{
+    Console.WriteLine(item); // 10, 15
+}
